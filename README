@@ -1,0 +1,8 @@
+1. install rhea
+    git clone https://github.com/cfelton/rhea
+    cd rhea
+    sudo python setup.py develop
+
+
+2. install pyserial
+    pip install pyserial
