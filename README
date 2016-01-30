@@ -1,8 +1,4 @@
-1. install rhea
-    git clone https://github.com/cfelton/rhea
-    cd rhea
-    sudo python setup.py develop
+Cozim README
 
-
-2. install pyserial
-    pip install pyserial
+Cozim is an FPGA powered cycle-accurate simulator for computer architecture research.
+Cozim is written in SystemVerilog.
