@@ -1,4 +1,3 @@
 Cozim README
 
-Cozim is an FPGA powered cycle-accurate simulator for computer architecture research.
-Cozim is written in SystemVerilog.
+Cozim is an FPGA based Computer Architecture Simulator written in SystemVerilog.
