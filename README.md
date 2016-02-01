@@ -2,7 +2,6 @@ Cozim README
 ===
 
 Cozim is an FPGA based Computer Architecture Simulator written in Verilog HDL.
-===
 
 Simulating Cozim using the iverilog tool
 ---
