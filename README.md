@@ -3,10 +3,10 @@ Cozim README
 
 Cozim is an FPGA based Computer Architecture Simulator written in Verilog HDL.
 
-RTL simulation of Cozim using the iverilog tool
+RTL simulation of Cozim using the iverilog tool (tested on Ubuntu 15.10 64bit)
 ---
 
-* sudo apt-get install iverilog
+* sudo apt-get install iverilog gtkwave
 * ./simulate.sh
 
 Synthesis and downloading of Cozim to the MOJO v3 board

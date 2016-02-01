@@ -1,2 +1,4 @@
+rm -rf ./cozim
 iverilog -o cozim source/simulator.v source/testbench.v
-./cozim
+vvp ./cozim
+gtkwave ./test.vcd

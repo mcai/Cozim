@@ -17,15 +17,22 @@ module testbench();
 	always #10 clk <= ! clk;
 	  
 	// initialize test
-	initial #0 begin
+	initial begin
+		#0;
 		clk = 0;		
 		reset_n = 0;
+		
 		#10;		
 		reset_n = 1;
+		
+		#10000;
+		$finish;
 	end
 
-	// check results
-	always @(negedge clk)
-		$display("state = %2b", state);
+	// output waveforms
+	initial begin
+		$dumpfile("test.vcd");
+		$dumpvars(0, dut);
+	end
 
 endmodule
