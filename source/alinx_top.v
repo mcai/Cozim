@@ -3,7 +3,7 @@ module alinx_top(input wire clk, reset_n,
 
 	assign led[3:2] = 2'b0;
 
-   // instantiate the simulator
+	// instantiate the simulator
 	
 	parameter MAX_CYCLE_WIDTH = 32;
    
