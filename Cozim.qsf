@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6F17C8
-set_global_assignment -name TOP_LEVEL_ENTITY top
+set_global_assignment -name TOP_LEVEL_ENTITY alinx_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.1.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "18:20:15  一月 27, 2016"
 set_global_assignment -name LAST_QUARTUS_VERSION 15.1.1
@@ -68,8 +68,6 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
-set_global_assignment -name SYSTEMVERILOG_FILE top.sv
-set_global_assignment -name SYSTEMVERILOG_FILE testbench.sv
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
 set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH testbench -section_id eda_simulation
@@ -79,11 +77,7 @@ set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME testbench -section_id tes
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "100000 ps" -section_id testbench
 set_global_assignment -name EDA_TEST_BENCH_FILE top.sv -section_id testbench -hdl_version SystemVerilog_2005
 set_global_assignment -name EDA_TEST_BENCH_FILE testbench.sv -section_id testbench -hdl_version SystemVerilog_2005
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 set_location_assignment PIN_E1 -to clk
 set_location_assignment PIN_E15 -to reset_n
@@ -92,3 +86,11 @@ set_location_assignment PIN_G15 -to led[0]
 set_location_assignment PIN_F16 -to led[1]
 set_location_assignment PIN_F15 -to led[2]
 set_location_assignment PIN_D16 -to led[3]
+
+set_global_assignment -name VERILOG_FILE source/testbench.v
+set_global_assignment -name VERILOG_FILE source/simulator.v
+set_global_assignment -name VERILOG_FILE source/alinx_top.v
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
