@@ -42,7 +42,7 @@ module noc_top
   end
   
   // Instantiate the network.  NetEmulation currently only provides `PORTS.  The obvious is to choose an integer square
-  network #(.X_NODES(`X_NODES), .Y_NODES(`Y_NODES), .Z_NODES(1), .N(5), .M(5), .INPUT_QUEUE_DEPTH(4))
+  network #(.X_NODES(`X_NODES), .Y_NODES(`Y_NODES), .N(5), .M(5), .INPUT_QUEUE_DEPTH(4))
     inst_network (.clk,
                        .reset_n(~rst),
                        .i_data(l_pkt_in),

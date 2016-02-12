@@ -38,7 +38,6 @@ module fifo_packet
   packet_t   l_mem           [DEPTH-1:0];
   integer    l_w_count;
   integer    l_r_count;
-  integer    l_count;
 
   always_ff@(posedge clk) begin
     if(~reset_n) begin
@@ -60,7 +59,6 @@ module fifo_packet
 
       l_w_count <= 0;
       l_r_count <= 0;
-      l_count <= 0;
     end else begin
       if(ce) begin
         // Memory Write
@@ -81,8 +79,6 @@ module fifo_packet
           l_mem_ptr[0].wr_ptr <= l_mem_ptr[DEPTH-1].wr_ptr;
           l_w_count <= l_w_count+1;
         end
-
-        l_count <= l_w_count-l_r_count;
 
         // Output Write
         // ------------------------------------------------------------------------------------------------------------
