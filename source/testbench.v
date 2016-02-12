@@ -4,11 +4,11 @@ module testbench();
 	
 	parameter MAX_CYCLE_WIDTH = 5;
 
-	reg clk;
-	reg reset_n;
+	logic clk;
+	logic reset_n;
 	  
-	wire [1:0] state;
-	wire [MAX_CYCLE_WIDTH-1:0] current_cycle;
+	logic [1:0] state;
+	logic [MAX_CYCLE_WIDTH-1:0] current_cycle;
 
 	// instantiate device to be tested  
 	simulator #(MAX_CYCLE_WIDTH) dut(clk, reset_n, state, current_cycle);

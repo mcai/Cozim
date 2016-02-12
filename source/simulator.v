@@ -1,11 +1,11 @@
 module simulator  #(parameter MAX_CYCLE_WIDTH = 32)
-			(input wire clk, reset_n,
-			output reg [1:0] state,
-			output reg [MAX_CYCLE_WIDTH-1:0] current_cycle);
+			(input logic clk, reset_n,
+			output logic [1:0] state,
+			output logic [MAX_CYCLE_WIDTH-1:0] current_cycle);
 
 	parameter MAX_CYCLE = {MAX_CYCLE_WIDTH{1'b1}};
 
-	reg [1:0] next_state;
+	logic [1:0] next_state;
 
 	always @(posedge clk or negedge reset_n)
 		if (!reset_n) begin
