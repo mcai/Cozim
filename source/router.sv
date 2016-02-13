@@ -9,28 +9,28 @@ module router #(
   
   // Upstream Bus.
   // ------------------------------------------------------------------------------------------------------------------
-  input  packet_t [0:`N-1] i_data,     // Input data from upstream [core, north, east, south, west]
+  input  packet_t [0:`N-1] i_data, // Input data from upstream [core, north, east, south, west]
   input  logic [0:`N-1] i_data_val, // Validates data from upstream [core, north, east, south, west]
-  output logic [0:`M-1] o_en,       // Enables data from upstream [core, north, east, south, west]
+  output logic [0:`M-1] o_en, // Enables data from upstream [core, north, east, south, west]
   
   // Downstream Bus
   // ------------------------------------------------------------------------------------------------------------------
-  output packet_t [0:`M-1] o_data,     // Outputs data to downstream [core, north, east, south, west]
+  output packet_t [0:`M-1] o_data, // Outputs data to downstream [core, north, east, south, west]
   output logic [0:`M-1] o_data_val, // Validates output data to downstream [core, north, east, south, west]
-  input  logic [0:`N-1] i_en);      // Enables output to downstream [core, north, east, south, west]
-  
+  input  logic [0:`N-1] i_en // Enables output to downstream [core, north, east, south, west]
+);  
   
   // Local Signals common to all definitions
   // ------------------------------------------------------------------------------------------------------------------
 
   // Load balancing.  Shorted if LOAD_BALANCE is not defined
-  packet_t [0:`N-1] l_i_data;       // Output of the input crossbar
-  logic [0:`N-1] l_i_data_val;   // Output of the input crossbar
-  logic [0:`N-1] l_o_en;         // Enable of the input crossbar
+  packet_t [0:`N-1] l_i_data; // Output of the input crossbar
+  logic [0:`N-1] l_i_data_val; // Output of the input crossbar
+  logic [0:`N-1] l_o_en; // Enable of the input crossbar
 
   // Connections between input queues and switch etc.
-  packet_t [0:`N-1] l_data;         // Connects FIFO data outputs to switch
-  logic [0:`N-1][0:`M-1] l_output_req;   // Request sent to SwitchControl
+  packet_t [0:`N-1] l_data; // Connects FIFO data outputs to switch
+  logic [0:`N-1][0:`M-1] l_output_req; // Request sent to SwitchControl
   logic [0:`M-1][0:`N-1] l_output_grant; // Grant from SwitchControl, used to control switch and FIFOs
 
   // Clock Enable.  For those modules that require it.
@@ -45,7 +45,7 @@ module router #(
   // ----------------------------------------------------------------------------------------------------------------
 
   logic [0:`N-1] l_data_val; // Connects FIFO valid output to the route calculator    
-  logic [0:`N-1] l_en;       // Connects switch control enable output to FIFO
+  logic [0:`N-1] l_en; // Connects switch control enable output to FIFO
   genvar i;     
 
   generate
@@ -69,9 +69,7 @@ module router #(
   // ----------------------------------------------------------------------------------------------------------------
   generate
     for (i=0; i<`N; i++) begin : GENERATE_ROUTE_CALCULATORS  
-      route_calculator #(
-                                 .X_LOC(X_LOC), .Y_LOC(Y_LOC)
-											)
+      route_calculator #(.X_LOC(X_LOC), .Y_LOC(Y_LOC))
         gen_route_calculator (
                                     .i_x_dest(l_data[i].x_dest),
                                     .i_y_dest(l_data[i].y_dest),

@@ -18,11 +18,11 @@ module route_calculator
     o_output_req = '0;
     if(i_val) begin
       if(i_x_dest != X_LOC) 
-		  o_output_req = (i_x_dest > X_LOC) ? 5'b00100 : 5'b00001;
+        o_output_req = (i_x_dest > X_LOC) ? 5'b00100 : 5'b00001;
       else if (i_y_dest != Y_LOC)
-		  o_output_req = (i_y_dest > Y_LOC) ? 5'b01000 : 5'b00010;
+        o_output_req = (i_y_dest > Y_LOC) ? 5'b01000 : 5'b00010;
       else
-		  o_output_req = 5'b10000;
+        o_output_req = 5'b10000;
     end
   end
 

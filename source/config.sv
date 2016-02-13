@@ -1,5 +1,5 @@
-`define X_NODES 8 // k(x,y,z)-ary.  Number of node columns  (must be > 0)
-`define Y_NODES 8 // k(x,y,z)-ary.  Number of node rows (must be > 0)
+`define X_NODES 8 // k(x,y)-ary.  Number of node columns  (must be > 0)
+`define Y_NODES 8 // k(x,y)-ary.  Number of node rows (must be > 0)
 `define NODES `X_NODES * `Y_NODES // Total number of nodes
 
 `define INPUT_QUEUE_DEPTH 4 // Globally set packet depth for input queues
