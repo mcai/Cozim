@@ -1,12 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
-// IP Block    : LIB
-// Sub Block   : PPE
-// Function    : RoundRobin
-// Module name : LIB_PPE_RoundRobin
-// Description : M-bit Programmable Priority Encoder including round robin priority generation.
-// Notes       : Netlist was used as the wrap around logic was causing problems during simulation.  Based on Dally and
-//               Towles Principles and Practices of Interconnection Networks p354
-// --------------------------------------------------------------------------------------------------------------------
+// M-bit Programmable Priority Encoder including round robin priority generation.
 module ppe_roundrobin
 #(
   parameter N // Number of requesters

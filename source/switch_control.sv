@@ -1,24 +1,19 @@
 `include "config.sv"
 
 module switch_control
-#(
-  parameter integer N, // Number of inputs
-  parameter integer M
-)
 (
-  input  logic clk,
-  input  logic ce,
-  input  logic reset_n,
+  input logic clk,
+  input logic ce,
+  input logic reset_n,
   
-  input  logic        [0:M-1] i_en,            // signal from downstream router that indicates if it is available
-  input  logic [0:N-1][0:M-1] i_output_req,    // N local input units requests up to M output ports
+  input logic [0:`M-1] i_en, // signal from downstream router that indicates if it is available
+  input logic [0:`N-1][0:`M-1] i_output_req, // N local input units requests up to M output ports
   
-  output logic [0:M-1][0:N-1] o_output_grant,  // Each of the M outputs are granted to the N inputs
-  
-  output logic        [0:N-1] o_input_grant  // Each of the N inputs has a single input queue that can be granted
+  output logic [0:`M-1][0:`N-1] o_output_grant, // Each of the M outputs are granted to the N inputs  
+  output logic [0:`N-1] o_input_grant // Each of the N inputs has a single input queue that can be granted
 );
 
-  logic [0:N-1][0:M-1] l_req_matrix;    // N Packed requests for M available output ports
+  logic [0:`N-1][0:`M-1] l_req_matrix; // N Packed requests for M available output ports
 
   // No virtual Output Queues, each input can only request a single output, only need to arbitrate for the output 
   // port. The input 'output_req' is N, M-bit words.  Each word corresponds to an input port, each bit corresponds to 
@@ -28,8 +23,8 @@ module switch_control
   // ----------------------------------------------------------------------------------------------------------------
   always_comb begin
     l_req_matrix = '0;
-    for (int i=0; i<M; i++) begin
-      for (int j=0; j<N; j++) begin
+    for (int i=0; i<`M; i++) begin
+      for (int j=0; j<`N; j++) begin
         l_req_matrix[i][j] = i_output_req[j][i] && i_en[i];
       end
     end
@@ -37,8 +32,8 @@ module switch_control
   
   genvar i;
   generate
-    for (i=0; i<M; i++) begin : OUTPUT_ARBITRATION
-        ppe_roundrobin #(.N(N)) gen_ppe_roundrobin (.clk,
+    for (i=0; i<`M; i++) begin : OUTPUT_ARBITRATION
+        ppe_roundrobin #(.N(`N)) gen_ppe_roundrobin (.clk,
                                                             .ce,
                                                             .reset_n,
                                                             .i_request(l_req_matrix[i]),
@@ -52,7 +47,7 @@ module switch_control
   // ----------------------------------------------------------------------------------------------------------------
   always_comb begin
     o_input_grant = '0;
-    for(int i=0; i<N; i++) begin
+    for(int i=0; i<`N; i++) begin
       o_input_grant |= o_output_grant[i];
       // if this fails to synthesize, this is equivalent to: l_en[0:N-1] = l_en[0:N-1] | l_output_grant[i][0:N-1];
     end
