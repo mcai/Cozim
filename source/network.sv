@@ -1,5 +1,6 @@
 `include "config.sv"
 
+// Network module
 module network
 (
   input logic clk, reset_n,
@@ -43,31 +44,37 @@ module network
   // the network.  Node inputs are read only from the output of its local router.  Because of this local logic network, 
   // routers and nodes can simply connect to the local logic network rather than trying to individually connect each 
   // router and node.    
+  // 
+  // example:
+  // 12 13 14 15
+  // 08 09 10 11
+  // 04 05 06 07
+  // 00 01 02 03
   always_comb begin
     for(int i=0; i<`X_NODES*`Y_NODES; i++) begin
       // Router input 'data' 
       //   -- Taken from upstream router output data and upstream node output data
-      l_datain[i][0] = i_data[i];                                                                   // Local input
-      l_datain[i][1] = (i < (`X_NODES*(`Y_NODES-1))) ? l_dataout[i+`X_NODES][3] : '0;                  // North Input
-      l_datain[i][2] = (((i + 1)% `X_NODES) == 0) ? '0 : l_dataout[i+1][4];                          // East Input
-      l_datain[i][3] = (i > (`X_NODES-1)) ? l_dataout[i-`X_NODES][1] : '0;                            // South Input
-      l_datain[i][4] = ((i % `X_NODES) == 0) ? '0 : l_dataout[i-1][2];                               // West Input
+      l_datain[i][0] = i_data[i]; // Local input
+      l_datain[i][1] = i < `X_NODES*(`Y_NODES-1) ? l_dataout[i+`X_NODES][3] : '0; // North Input
+      l_datain[i][2] = (i + 1) % `X_NODES == 0 ? '0 : l_dataout[i+1][4]; // East Input
+      l_datain[i][3] = i > (`X_NODES-1) ? l_dataout[i-`X_NODES][1] : '0; // South Input
+      l_datain[i][4] = i % `X_NODES == 0 ? '0 : l_dataout[i-1][2]; // West Input
       
       // Router input 'data valid'
       //   -- Taken from upstream router output data valid and upstream node output data valid
       l_datain_val[i][0] = i_data_val[i]; // Local input
-      l_datain_val[i][1] = (i < (`X_NODES*(`Y_NODES-1))) ? l_dataout_val[i+`X_NODES][3] : '0; // North Input
-      l_datain_val[i][2] = (((i + 1)% `X_NODES) == 0) ? '0 : l_dataout_val[i+1][4]; // East Input
-      l_datain_val[i][3] = (i > (`X_NODES-1)) ? l_dataout_val[i-`X_NODES][1] : '0; // South Input
-      l_datain_val[i][4] = ((i % `X_NODES) == 0) ? '0 : l_dataout_val[i-1][2]; // West Input  
+      l_datain_val[i][1] = i < `X_NODES*(`Y_NODES-1) ? l_dataout_val[i+`X_NODES][3] : '0; // North Input
+      l_datain_val[i][2] = (i + 1)% `X_NODES == 0 ? '0 : l_dataout_val[i+1][4]; // East Input
+      l_datain_val[i][3] = i > (`X_NODES-1) ? l_dataout_val[i-`X_NODES][1] : '0; // South Input
+      l_datain_val[i][4] = i % `X_NODES == 0 ? '0 : l_dataout_val[i-1][2]; // West Input  
 		 
       // Router input 'enable'
       //   -- Taken from upstream router output data enable and upstream node output data enable
       l_i_en[i][0] = '1; // Local input
-      l_i_en[i][1] = (i < (`X_NODES*(`Y_NODES-1))) ? l_o_en[i+`X_NODES][3] : '0; // North Input
-      l_i_en[i][2] = (((i + 1)% `X_NODES) == 0) ? '0 : l_o_en[i+1][4]; // East Input
-      l_i_en[i][3] = (i > (`X_NODES-1)) ? l_o_en[i-`X_NODES][1] : '0; // South Input
-      l_i_en[i][4] = ((i % `X_NODES) == 0) ? '0 : l_o_en[i-1][2]; // West Input
+      l_i_en[i][1] = i < `X_NODES*(`Y_NODES-1) ? l_o_en[i+`X_NODES][3] : '0; // North Input
+      l_i_en[i][2] = (i + 1) % `X_NODES == 0 ? '0 : l_o_en[i+1][4]; // East Input
+      l_i_en[i][3] = i > (`X_NODES-1) ? l_o_en[i-`X_NODES][1] : '0; // South Input
+      l_i_en[i][4] = (i % `X_NODES) == 0 ? '0 : l_o_en[i-1][2]; // West Input
       
       // Node inputs, i.e network outputs
       o_data[i] = l_dataout[i][0];
@@ -78,21 +85,19 @@ module network
   
   // Generate Routers
   // ------------------------------------------------------------------------------------------------------------------
-  genvar y, x;
   generate
-    for (y=0; y<`Y_NODES; y++) begin : GENERATE_Y_ROUTERS
-      for(x=0; x<`X_NODES; x++) begin : GENERATE_X_ROUTERS
-        router #(
-                        .X_LOC(x),.Y_LOC(y)
-							)
-          gen_router (.clk(clk),
+    genvar y, x;
+    for (y=0; y<`Y_NODES; y++) begin : rows
+      for(x=0; x<`X_NODES; x++) begin : cols
+        router #(.X_LOC(x),.Y_LOC(y))
+          router (.clk(clk),
                              .reset_n(reset_n),
-                             .i_data(l_datain[(y*`X_NODES)+x]),          // From the upstream routers and nodes
-                             .i_data_val(l_datain_val[(y*`X_NODES)+x]),  // From the upstream routers and nodes
-                             .o_en(l_o_en[(y*`X_NODES)+x]),              // To the upstream routers
-                             .o_data(l_dataout[(y*`X_NODES)+x]),         // To the downstream routers
-                             .o_data_val(l_dataout_val[(y*`X_NODES)+x]), // To the downstream routers
-                             .i_en(l_i_en[(y*`X_NODES)+x]));             // From the downstream routers
+                             .i_data(l_datain[y*`X_NODES+x]), // From the upstream routers and nodes
+                             .i_data_val(l_datain_val[y*`X_NODES+x]), // From the upstream routers and nodes
+                             .o_en(l_o_en[y*`X_NODES+x]), // To the upstream routers
+                             .o_data(l_dataout[y*`X_NODES+x]), // To the downstream routers
+                             .o_data_val(l_dataout_val[y*`X_NODES+x]), // To the downstream routers
+                             .i_en(l_i_en[y*`X_NODES+x])); // From the downstream routers
       end
     end
   endgenerate

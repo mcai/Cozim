@@ -4,11 +4,11 @@ module ppe_roundrobin
   parameter N // Number of requesters
 )
 (
-  input  logic clk,
-  input  logic ce,
-  input  logic reset_n,
+  input logic clk,
+  input logic ce,
+  input logic reset_n,
 
-  input  logic [0:N-1] i_request, // Active high Request vector
+  input logic [0:N-1] i_request, // Active high Request vector
 
   output logic [0:N-1] o_grant // One-hot Grant vector
 );
@@ -19,16 +19,16 @@ module ppe_roundrobin
 
   // Variable priority iterative arbiter slice generation.  Final slice carry loops round.
   // ------------------------------------------------------------------------------------------------------------------
-  genvar i;
   generate
+	genvar i;
     for (i=0; i<N-1; i++) begin : PPE_SLICES
-      or gate1  (l_intermediate[i], l_carry[i], l_priority[i]);
-      and gate2  (o_grant[i], l_intermediate[i], i_request[i]);
-      and gate3  (l_carry[i+1], l_intermediate[i], ~i_request[i]);
+      or gate1 (l_intermediate[i], l_carry[i], l_priority[i]);
+      and gate2 (o_grant[i], l_intermediate[i], i_request[i]);
+      and gate3 (l_carry[i+1], l_intermediate[i], ~i_request[i]);
     end
-    or gate1  (l_intermediate[N-1], l_carry[N-1], l_priority[N-1]);
-    and gate2  (o_grant[N-1], l_intermediate[N-1], i_request[N-1]);
-    and gate3  (l_carry[0], l_intermediate[N-1], ~i_request[N-1]);
+    or gate1 (l_intermediate[N-1], l_carry[N-1], l_priority[N-1]);
+    and gate2 (o_grant[N-1], l_intermediate[N-1], i_request[N-1]);
+    and gate3 (l_carry[0], l_intermediate[N-1], ~i_request[N-1]);
   endgenerate
 
   // Round-Robin priority generation.

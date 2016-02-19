@@ -15,7 +15,7 @@ module switch_control
 
   logic [0:`N-1][0:`M-1] l_req_matrix; // N Packed requests for M available output ports
 
-  // No virtual Output Queues, each input can only request a single output, only need to arbitrate for the output 
+  // Each input can only request a single output, only need to arbitrate for the output 
   // port. The input 'output_req' is N, M-bit words.  Each word corresponds to an input port, each bit corresponds to 
   // the requested output port.  This is transposed so that each word corresponds to an output port, and each bit 
   // corresponds to an input that requested it.  This also ensures that output port requests will not be made if the 
@@ -30,14 +30,13 @@ module switch_control
     end
   end
   
-  genvar i;
   generate
-    for (i=0; i<`M; i++) begin : OUTPUT_ARBITRATION
-        ppe_roundrobin #(.N(`N)) gen_ppe_roundrobin (.clk,
-                                                            .ce,
-                                                            .reset_n,
-                                                            .i_request(l_req_matrix[i]),
-                                                            .o_grant(o_output_grant[i]));
+    genvar i;
+    for (i=0; i<`M; i++) begin : output_ports
+        ppe_roundrobin #(.N(`N)) 
+		    gen_ppe_roundrobin (.clk, .ce, .reset_n,
+										.i_request(l_req_matrix[i]),
+										.o_grant(o_output_grant[i]));
     end
   endgenerate
     
@@ -49,7 +48,6 @@ module switch_control
     o_input_grant = '0;
     for(int i=0; i<`N; i++) begin
       o_input_grant |= o_output_grant[i];
-      // if this fails to synthesize, this is equivalent to: l_en[0:N-1] = l_en[0:N-1] | l_output_grant[i][0:N-1];
     end
   end 
 

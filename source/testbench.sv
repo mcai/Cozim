@@ -1,32 +1,187 @@
 `timescale 1ps/1ps
 
-module testbench();
-	
-  parameter MAX_CYCLE_WIDTH = 5;
+module testbench
+#(
+  parameter CLK_PERIOD = 5,
+  parameter integer PACKET_RATE = 100, // Offered traffic as percent of capacity
+  parameter integer WARMUP_PACKETS = 1000, // Number of packets to warm-up the network
+  parameter integer MEASURE_PACKETS = 5000, // Number of packets to be measured
+  parameter integer DRAIN_PACKETS = 3000, // Number of packets to drain the network
+  parameter integer DOWNSTREAM_EN_RATE = 100, // Percent of time simulated nodes able to receive data
+  parameter integer NODE_QUEUE_DEPTH = `INPUT_QUEUE_DEPTH*8
+);
 
   logic clk;
   logic reset_n;
-	  
-  logic [1:0] state;
-  logic [MAX_CYCLE_WIDTH-1:0] current_cycle;
 
-  // instantiate device to be tested  
-  simulator #(MAX_CYCLE_WIDTH) dut(clk, reset_n, state, current_cycle);
+  // SIGNALS:  Node Input Bus.
+  // ------------------------------------------------------------------------------------------------------------------
+  packet_t [0:`NODES-1] i_data; // Input data from the nodes to the network
+  logic [0:`NODES-1] i_data_val; // Validates the input data from the nodes.
+  logic [0:`NODES-1] o_en; // Enables the node to send data to the network.
+  
+  // SIGNALS:  Node Output Bus
+  // ------------------------------------------------------------------------------------------------------------------
+  logic [0:`NODES-1] i_en; // Enables output data from network to downstream nodes
+  packet_t [0:`NODES-1] o_data; // Output data from the network to the nodes
+  logic [0:`NODES-1] o_data_val; // Validates the output data to the nodes
+  
+  // SIGNALS:  Input Queue FIFO signals
+  // ------------------------------------------------------------------------------------------------------------------
+  packet_t [0:`NODES-1] s_i_data; // Input data from upstream [core, north, east, south, west]
+  logic [0:`NODES-1] s_i_data_val; // Validates data from upstream [core, north, east, south, west]
+  logic [0:`NODES-1] l_i_data_val; // Used to create i_data_val depending on the value of o_en
+  logic [0:`NODES-1] f_full; // Indicates that the node queue is saturated
+  
+  // FLAGS:  Random
+  // ------------------------------------------------------------------------------------------------------------------   
+  logic [0:`NODES-1] f_data_val;
+  
+  logic [0:`NODES-1][$clog2(`X_NODES+1)-1:0] f_x_dest;
+  logic [0:`NODES-1][$clog2(`Y_NODES+1)-1:0] f_y_dest;
+  
+  // FLAGS:  Control
+  // ------------------------------------------------------------------------------------------------------------------  
+  longint f_time;                       // Pseudo time value/clock counter
+  
+  network network(
+						.clk(clk), 
+						.reset_n(reset_n), 
+						.i_data(i_data), 
+						.i_data_val(i_data_val),
+						.o_en(o_en),
+						.o_data(o_data),
+						.o_data_val(o_data_val)
+                );
 
-  // generate clock to sequence tests
-  always #10 clk <= ! clk;
-	  
-  // initialize test
+  // SIMULATION:  System Clock
+  // ------------------------------------------------------------------------------------------------------------------
   initial begin
-    #0;
-    clk = 0;		
+    clk = 1;
+    forever #(CLK_PERIOD/2) clk = ~clk;
+  end
+
+  // SIMULATION:  System Time
+  // ------------------------------------------------------------------------------------------------------------------  
+  initial begin
+    f_time = 0;
+    forever #(CLK_PERIOD) f_time = f_time + 1;
+  end  
+  
+  // SIMULATION:  System Reset
+  // ------------------------------------------------------------------------------------------------------------------
+  initial begin
     reset_n = 0;
-    
-    #10;		
+    #((CLK_PERIOD)+3*(CLK_PERIOD/4))
     reset_n = 1;
+  end
+
+  // SIMULATION:  Node RX
+  // ------------------------------------------------------------------------------------------------------------------
+  always_ff@(posedge clk) begin
+    if(~reset_n) begin
+      for(int i=0; i<`NODES; i++) begin
+        i_en[i] <= 0;
+      end
+    end else begin
+      for(int i=0; i<`NODES; i++) begin
+        i_en[i] <= ($urandom_range(100,1) <= DOWNSTREAM_EN_RATE) ? 1 : 0;
+      end
+    end
+  end
+  
+  // SIMULATION:  Node TX
+  // ------------------------------------------------------------------------------------------------------------------
+  genvar i;
+  generate
+    for (i=0; i<`NODES; i++) begin : GENERATE_INPUT_QUEUES
+      fifo_packet #(.DEPTH(NODE_QUEUE_DEPTH))
+        gen_fifo_packet (.clk,
+                               .ce(1'b1),
+                               .reset_n,
+                               .i_data(s_i_data[i]),         // From the simulated input data
+                               .i_data_val(s_i_data_val[i]), // From the simulated input data
+                               .i_en(o_en[i]),               // From the Router
+                               .o_data(i_data[i]),           // To the Router
+                               .o_data_val(l_i_data_val[i]),   // To the Router
+                               .o_en(f_full[i]));             // Used to indicate router saturation
+    end
+  endgenerate
+  
+  // Check for an output enable before raising valid
+  always_comb begin
+    i_data_val = '0;
+    for(int i=0; i<`NODES; i++) begin
+      i_data_val[i] = l_i_data_val[i] && o_en[i];
+    end
+  end
     
-    #10000;
-    $finish;
+  // --------------------------------------------------------------------------------------------------------------------
+  // RANDOM DATA GENERATION
+  // --------------------------------------------------------------------------------------------------------------------
+  // The random data generation consists of two parts, random flag generation, and the population of the data.  A valid
+  // bit and random node address are generated each cycle as flags.  When populating input data, these flags can be
+  // sampled as and when required.  The data generation has been split this way to enable easier editing of the composite
+  // parts.  For example, creating a new random traffic pattern would require only the valid bit to be worked on, and the
+  // rest can remain the same.
+  // --------------------------------------------------------------------------------------------------------------------
+  
+  // RANDOM FLAG:  Destination
+  // ------------------------------------------------------------------------------------------------------------------
+  always_ff@(posedge clk) begin
+    if(~reset_n) begin
+      for(int i=0; i<`NODES; i++) begin
+          f_x_dest[i] <= 0;
+          f_y_dest[i] <= 0;
+      end
+    end else begin
+      for(int i=0; i<`NODES; i++) begin
+          f_x_dest[i] <= $urandom_range(`X_NODES-1, 0);
+          f_y_dest[i] <= $urandom_range(`Y_NODES-1, 0);
+      end
+    end
+  end
+  
+  // RANDOM FLAG:  Valid (Bernoulli) and bursty (fixed burst size)
+  // ------------------------------------------------------------------------------------------------------------------ 
+  always_ff@(posedge clk) begin
+    if(~reset_n) begin
+      for(int i=0; i<`NODES; i++) begin
+        f_data_val[i] <= 0;
+      end
+    end else begin
+      for(int i=0; i<`NODES; i++) begin
+        f_data_val[i] <= ($urandom_range(100,1) <= PACKET_RATE) ? 1'b1 : 1'b0;
+      end
+    end
+  end
+  
+  // RANDOM DATA GENERATION:  Populate input data
+  // ------------------------------------------------------------------------------------------------------------------  
+  always_ff@(posedge clk) begin
+      if(~reset_n) begin
+          for (int y=0; y<`Y_NODES; y++) begin
+            for (int x=0; x<`X_NODES; x++) begin
+              s_i_data[(y*`X_NODES)+x].x_source  <= x; // Source field used to declare which input port packet was presented to
+              s_i_data[(y*`X_NODES)+x].y_source  <= y; // Source field used to declare which input port packet was presented to
+              s_i_data[(y*`X_NODES)+x].x_dest    <= 0; // Destination field indicates where packet is to be routed to
+              s_i_data[(y*`X_NODES)+x].y_dest    <= 0; // Destination field indicates where packet is to be routed to 
+            end
+          end
+      end else begin
+        for(int i=0; i<`NODES; i++) begin
+          s_i_data[i].x_dest <= f_x_dest[i];
+          s_i_data[i].y_dest <= f_y_dest[i];
+        end
+      end
+    end
+	 
+	 // packet_t carries a valid in the packet, the some flow controls, such as that used by LIB_FIFO_packet_t use separate
+  // valid/enable protocol and flag gen.  For simplicity, they are just connected here. 
+  always_comb begin
+    for(int i=0; i<`NODES; i++) begin
+      s_i_data_val[i] = 1'b1;
+    end
   end
 
   // output waveforms

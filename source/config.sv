@@ -5,7 +5,7 @@
 `define INPUT_QUEUE_DEPTH 4 // Globally set packet depth for input queues
 
 `define N 5
-`define M 5
+`define M `N
 
  // Network packet type for simple addressed designs
 typedef struct packed {

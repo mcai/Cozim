@@ -6,12 +6,12 @@ module route_calculator
   parameter integer Y_LOC // Current location on the Y axis
 )
 (
-  input  logic [$clog2(`X_NODES)-1:0] i_x_dest, // Packet destination on the x axis
-  input  logic [$clog2(`Y_NODES)-1:0] i_y_dest, // Packet destination on the Y axis
+  input logic [$clog2(`X_NODES)-1:0] i_x_dest, // Packet destination on the x axis
+  input logic [$clog2(`Y_NODES)-1:0] i_y_dest, // Packet destination on the Y axis
   
-  input  logic  i_val, // Valid destination
+  input logic i_val, // Valid destination
   
-  output logic  [0:`M-1] o_output_req // One-hot request for the [c,n,e,s,w] output port
+  output logic [0:`M-1] o_output_req // One-hot request for the [local, north, east, south, west] output port
 );
 
   always_comb begin
