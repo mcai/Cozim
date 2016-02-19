@@ -17,18 +17,15 @@ module ppe_roundrobin
   logic [0:N-1] l_carry; // Carry-bit between arbiter slices
   logic [0:N-1] l_intermediate; // Intermediate wire inside arbiter slice
 
-  // Variable priority iterative arbiter slice generation.  Final slice carry loops round.
+  // Variable priority iterative arbiter slice generation. Final slice carry loops round.
   // ------------------------------------------------------------------------------------------------------------------
   generate
 	genvar i;
-    for (i=0; i<N-1; i++) begin : PPE_SLICES
-      or gate1 (l_intermediate[i], l_carry[i], l_priority[i]);
-      and gate2 (o_grant[i], l_intermediate[i], i_request[i]);
-      and gate3 (l_carry[i+1], l_intermediate[i], ~i_request[i]);
+    for (i=0; i<N; i++) begin : requesters
+		assign l_intermediate[i] = l_carry[i] | l_priority[i];
+		assign o_grant[i] = l_intermediate[i] & i_request[i];
+		assign l_carry[i==N-1?0:i+1] = l_intermediate[i] & ~i_request[i];
     end
-    or gate1 (l_intermediate[N-1], l_carry[N-1], l_priority[N-1]);
-    and gate2 (o_grant[N-1], l_intermediate[N-1], i_request[N-1]);
-    and gate3 (l_carry[0], l_intermediate[N-1], ~i_request[N-1]);
   endgenerate
 
   // Round-Robin priority generation.
