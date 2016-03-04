@@ -1,7 +1,7 @@
 Cozim README
 ===
 
-Cozim is an FPGA based Computer Architecture Simulator written in SystemVerilog HDL.
+Cozim is an FPGA based NoC Simulator written in SystemVerilog HDL.
 
 Synthesis and downloading of Cozim to the Alinx AX301 board
 ---
