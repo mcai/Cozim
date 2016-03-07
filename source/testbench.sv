@@ -1,5 +1,7 @@
 `timescale 1ps/1ps
 
+`include "config.sv"
+
 module testbench
 #(
   parameter CLK_PERIOD = 5,
@@ -187,7 +189,7 @@ module testbench
   // output waveforms
   initial begin
     $dumpfile("test.vcd");
-    $dumpvars(0, dut);
+    $dumpvars(0, network);
   end
 
 endmodule
