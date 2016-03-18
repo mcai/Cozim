@@ -47,7 +47,9 @@ module router #(
         input_queue (.clk, .ce, .reset_n,
 									.i_data(i_data[i]), // From the upstream routers
 									.i_data_val(i_data_val[i]), // From the upstream routers
+									
 									.i_en(l_en[i]), // From the SwitchControl
+									
 									.o_data(l_data[i]), // To the Switch
 									.o_data_val(l_data_val[i]), // To the route calculator
 									.o_en(o_en[i])); // To the upstream router
@@ -63,7 +65,7 @@ module router #(
   endgenerate
   
   ant_agent #(.X_LOC(X_LOC), .Y_LOC(Y_LOC))
-    ant_agent();
+    ant_agent(.i_data(l_data), .i_data_val(l_data_val));
  
   // Switch Control receives N, M-bit words, each word corresponds to an input, each bit corresponds to the requested
   // output.  This is combined with the enable signal from the downstream router, then arbitrated.  The result is
