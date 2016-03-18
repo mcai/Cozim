@@ -1,6 +1,6 @@
 `include "config.sv"
 
-module route_calculator
+module route_calculator_xy
 #(
   parameter integer X_LOC, // Current location on the X axis
   parameter integer Y_LOC // Current location on the Y axis

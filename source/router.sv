@@ -54,13 +54,16 @@ module router #(
 									
       // Route calculator will output 5 packed words, each word corresponds to an input, each bit corresponds to the
       // output requested.
-      route_calculator #(.X_LOC(X_LOC), .Y_LOC(Y_LOC))
+      route_calculator_aco #(.X_LOC(X_LOC), .Y_LOC(Y_LOC))
         route_calculator (.i_x_dest(l_data[i].x_dest),
 										.i_y_dest(l_data[i].y_dest),
 										.i_val(l_data_val[i]), // From local FIFO
 										.o_output_req(l_output_req[i])); // To Switch Control
     end
   endgenerate
+  
+  ant_agent #(.X_LOC(X_LOC), .Y_LOC(Y_LOC))
+    ant_agent();
  
   // Switch Control receives N, M-bit words, each word corresponds to an input, each bit corresponds to the requested
   // output.  This is combined with the enable signal from the downstream router, then arbitrated.  The result is

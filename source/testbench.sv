@@ -44,7 +44,7 @@ module testbench
   
   // FLAGS:  Control
   // ------------------------------------------------------------------------------------------------------------------  
-  longint f_time;                       // Pseudo time value/clock counter
+  longint f_time; // Pseudo time value/clock counter
   
   network network(
 						.clk(clk), 
