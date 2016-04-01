@@ -7,6 +7,10 @@
 `define N 5
 `define M `N
 
+`define PH_MIN_VALUE 8'b0
+`define PH_MAX_VALUE 8'b1
+`define ANT_PERIOD 1000
+
  // Network packet type for simple addressed designs
 typedef struct packed {
     logic [$clog2(`X_NODES)-1:0] x_source;
@@ -16,9 +20,9 @@ typedef struct packed {
 	 
 	 logic ant;
 	 logic backward;
-    logic [0:`NODES-2][$clog2(`X_NODES+1)-1:0] x_memory;
-    logic [0:`NODES-2][$clog2(`Y_NODES+1)-1:0] y_memory;
-	 int num_memory;
+    logic [0:`NODES-1][$clog2(`X_NODES+1)-1:0] x_memory;
+    logic [0:`NODES-1][$clog2(`Y_NODES+1)-1:0] y_memory;
+	 logic [$clog2(`NODES)-1:0] num_memory;
 } packet_t;
 
  // Network packet type for simple addressed designs
