@@ -17,3 +17,5 @@ TODOs
 * port assignment: use local variables or not?
 
 * sequential logic or combinational logic?
+
+* modelsim usage?
