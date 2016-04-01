@@ -6,9 +6,11 @@ module testbench
 #(
   parameter CLK_PERIOD = 5,
   parameter integer PACKET_RATE = 100, // Offered traffic as percent of capacity
+  
   parameter integer WARMUP_PACKETS = 1000, // Number of packets to warm-up the network
   parameter integer MEASURE_PACKETS = 5000, // Number of packets to be measured
   parameter integer DRAIN_PACKETS = 3000, // Number of packets to drain the network
+  
   parameter integer DOWNSTREAM_EN_RATE = 100, // Percent of time simulated nodes able to receive data
   parameter integer NODE_QUEUE_DEPTH = `INPUT_QUEUE_DEPTH*8
 );

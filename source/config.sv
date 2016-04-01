@@ -24,10 +24,3 @@ typedef struct packed {
     logic [0:`NODES-1][$clog2(`Y_NODES+1)-1:0] y_memory;
 	 logic [$clog2(`NODES)-1:0] num_memory;
 } packet_t;
-
- // Network packet type for simple addressed designs
-typedef struct packed {
-    logic [$clog2(`X_NODES)-1:0] x_neighbor;
-    logic [$clog2(`Y_NODES)-1:0] y_neighbor;
-	 real value;
-} pheromone_t;
