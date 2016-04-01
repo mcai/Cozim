@@ -12,7 +12,7 @@ module ant_agent
   output logic [0:`N-1] o_data_val // Data out valid
 );
 
-  packet_t [0:`N-1] l_data; // Data in
+//  packet_t [0:`N-1] l_data; // Data in
 
   ant_routing_table #(.X_LOC(X_LOC), .Y_LOC(Y_LOC))
        routing_table();
@@ -21,37 +21,34 @@ module ant_agent
   var logic [$clog2(`Y_NODES)-1:0] l_y_temp;
   
   always_comb begin
-    l_data = '0;
-    for(int i=0; i<`N; i++) begin
-      l_data[i] = i_data[i];
-    end
+//    l_data = i_data;
 	 
     for(int i=0; i<`N; i++) begin
       if(i_data_val[i]) begin
-		  if(~l_data[i].ant) begin
+		  if(~i_data[i].ant) begin
 		    // normal packet
 		  end else begin
 		    // ant packet
-			 if(~l_data[i].backward) begin
+			 if(~i_data[i].backward) begin
 			  // forward ant packet
 			  // memorize
-			  l_data[i].x_memory[l_data[i].num_memory] = X_LOC;
-			  l_data[i].y_memory[l_data[i].num_memory] = Y_LOC;
-			  l_data[i].num_memory++;
+			  i_data[i].x_memory[i_data[i].num_memory] = X_LOC;
+			  i_data[i].y_memory[i_data[i].num_memory] = Y_LOC;
+			  i_data[i].num_memory++;
 			  
-			  if(X_LOC != l_data[i].x_dest || Y_LOC != l_data[i].y_dest) begin
+			  if(X_LOC != i_data[i].x_dest || Y_LOC != i_data[i].y_dest) begin
 			    // send forward ant packet
 			  end else begin
-			    l_data[i].backward = 1'b1;
+			    i_data[i].backward = 1'b1;
 				 
-			    l_x_temp = l_data[i].x_source;
-			    l_y_temp = l_data[i].y_source;
+			    l_x_temp = i_data[i].x_source;
+			    l_y_temp = i_data[i].y_source;
 			    
-				 l_data[i].x_source = l_data[i].x_dest;
-			    l_data[i].y_source = l_data[i].y_dest;
+				 i_data[i].x_source = i_data[i].x_dest;
+			    i_data[i].y_source = i_data[i].y_dest;
 			    
-				 l_data[i].x_dest = l_x_temp;
-			    l_data[i].y_dest = l_y_temp;
+				 i_data[i].x_dest = l_x_temp;
+			    i_data[i].y_dest = l_y_temp;
 				 
 				 // send backward ant packet
 			  end
@@ -75,6 +72,6 @@ module ant_agent
   endfunction
 
   // Pipeline control.
-  assign o_data = l_data;
+  assign o_data = i_data;
 
 endmodule
