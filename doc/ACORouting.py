@@ -91,7 +91,7 @@ class RoutingTable:
 
         return i
 
-    def calculate_neighbor(self, destination=-1, parent=-1):
+    def calculate_neighbor(self, destination=-1, parent=-1): # done
         """
         Calculate the neighbor (next hop) router for the specified destination and parent routers.
 
@@ -123,7 +123,7 @@ class RoutingTable:
 
         return max_pheromone_neighbor
 
-    def update(self, destination=-1, neighbor=-1):
+    def update(self, destination=-1, neighbor=-1): # partly done
         """
         Update the routing table by incrementing or evaporating pheromone values.
 
@@ -334,6 +334,7 @@ def add_periodic_event(event, period_in_cycles):
     """
     pass # TODO
 
+
 def get_num_routers():
     """
     Get the number of routers in the network.
@@ -341,6 +342,7 @@ def get_num_routers():
     :return: the number of routers in the network
     """
     return 0 # TODO
+
 
 def get_links(router):
     """
@@ -366,4 +368,4 @@ def net_transfer(source, destination, packet, on_completed_callback):
 
 if __name__ == '__main__':
     aco_routing = ACORouting(add_periodic_event, get_num_routers, get_links, net_transfer)
-    print 'neighbor(0, 1) = %d' % aco_routing.calculate_neighbor(0, 1)
+    print('neighbor(0, 1) = %d' % aco_routing.calculate_neighbor(0, 1))

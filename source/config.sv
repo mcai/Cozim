@@ -4,8 +4,8 @@
 
 `define INPUT_QUEUE_DEPTH 4 // Globally set packet depth for input queues
 
-`define N 5
-`define M `N
+`define N 5 // input ports
+`define M `N // output ports
 
 `define PH_MIN_VALUE 8'b0
 `define PH_MAX_VALUE 8'b1
