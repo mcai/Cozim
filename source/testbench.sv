@@ -12,7 +12,7 @@ module testbench
   parameter integer DRAIN_PACKETS = 3000, // Number of packets to drain the network
   
   parameter integer DOWNSTREAM_EN_RATE = 100, // Percent of time simulated nodes able to receive data
-  parameter integer NODE_QUEUE_DEPTH = `INPUT_QUEUE_DEPTH*8
+  parameter integer NODE_QUEUE_DEPTH = `INPUT_QUEUE_DEPTH * 8
 );
 
   logic clk;
@@ -41,9 +41,7 @@ module testbench
   // SIGNALS:  Input Queue FIFO signals
   // ------------------------------------------------------------------------------------------------------------------
   // (f_x_dest, f_y_dest) -> s_i_data -> (fifo.i_data.Xdest, fifo.i_data.Ydest)
-  packet_t [0:`NODES-1] s_i_data; // Input data from upstream [core, north, east, south, west]  
-  // (===)1 -> s_i_data_val -> fifo.i_data_val
-  logic [0:`NODES-1] s_i_data_val; // Validates data from upstream [core, north, east, south, west]  
+  packet_t [0:`NODES-1] s_i_data; // Input data from upstream [core, north, east, south, west]
   // fifo.o_data_val -> l_i_data_val -> i_data_val:2
   logic [0:`NODES-1] l_i_data_val; // Used to create i_data_val depending on the value of o_en  
   // fifo.o_en -> f_full -> none
@@ -61,6 +59,13 @@ module testbench
   // ------------------------------------------------------------------------------------------------------------------
   // Pseudo time value/clock counter
   longint f_time;
+  
+  integer f_port_s_i_data_count [0:`NODES-1]; // Count number of packets simulated and added to the node queues
+  integer f_total_s_i_data_count;            // Count total number of simulated packets
+  integer f_port_i_data_count [0:`NODES-1];   // Count number of packets that left the node, transmitted on each port
+  integer f_total_i_data_count;              // Count total number of transmitted packets
+  integer f_port_o_data_count [0:`NODES-1];   // Count number of received packets on each port
+  integer f_total_o_data_count;              // Count total number of received packets
   
   network network(
 						.clk(clk), 
@@ -90,7 +95,7 @@ module testbench
   // ------------------------------------------------------------------------------------------------------------------
   initial begin
     reset_n = 0;
-    #((CLK_PERIOD)+3*(CLK_PERIOD/4))
+    #(CLK_PERIOD + 3 * CLK_PERIOD / 4)
     reset_n = 1;
   end
 
@@ -117,10 +122,9 @@ module testbench
         gen_fifo_packet (.clk,
                                .ce(1'b1),
                                .reset_n,
-								// [i]=f_x_dest[i]=$urandom_range(`X_NODES-1, 0);
+										// [i]=f_x_dest[i]=$urandom_range(`X_NODES-1, 0);
                                .i_data(s_i_data[i]),         // From the simulated input data
-								// ===1
-                               .i_data_val(s_i_data_val[i]), // From the simulated input data
+                               .i_data_val(1'b1), // From the simulated input data
                                .i_en(o_en[i]),               // From the Router
                                .o_data(i_data[i]),           // To the Router
                                .o_data_val(l_i_data_val[i]), // To the Router
@@ -180,12 +184,12 @@ module testbench
   // ------------------------------------------------------------------------------------------------------------------  
   always_ff@(posedge clk) begin
       if(~reset_n) begin
-          for (int y=0; y<`Y_NODES; y++) begin
-            for (int x=0; x<`X_NODES; x++) begin
-              s_i_data[(y*`X_NODES)+x].x_source  <= x; // Source field used to declare which input port packet was presented to
-              s_i_data[(y*`X_NODES)+x].y_source  <= y; // Source field used to declare which input port packet was presented to
-              s_i_data[(y*`X_NODES)+x].x_dest    <= 0; // Destination field indicates where packet is to be routed to
-              s_i_data[(y*`X_NODES)+x].y_dest    <= 0; // Destination field indicates where packet is to be routed to 
+          for (int y = 0; y < `Y_NODES; y++) begin
+            for (int x = 0; x < `X_NODES; x++) begin
+              s_i_data[y *`X_NODES + x].x_source <= x; // Source field used to declare which input port packet was presented to
+              s_i_data[y*`X_NODES + x].y_source <= y; // Source field used to declare which input port packet was presented to
+              s_i_data[y*`X_NODES + x].x_dest <= 0; // Destination field indicates where packet is to be routed to
+              s_i_data[y*`X_NODES + x].y_dest <= 0; // Destination field indicates where packet is to be routed to 
             end
           end
       end else begin
@@ -197,24 +201,56 @@ module testbench
           s_i_data[i].x_memory <= 0;
           s_i_data[i].y_memory <= 0;
           s_i_data[i].num_memories <= 0;
-            if (f_time % `ANT_PERIOD == 0) s_i_data[i].ant = 1;
-            else s_i_data[i].ant=0;
+			 
+          if (f_time % `ANT_PERIOD == 0)
+				s_i_data[i].ant <= 1;
+          else
+				s_i_data[i].ant <= 0;
         end
       end
     end
-
-  // packet_t carries a valid in the packet, the some flow controls, such as that used by LIB_FIFO_packet_t use separate
-  // valid/enable protocol and flag gen.  For simplicity, they are just connected here. 
+  
+  // TEST FUNCTION:  TX and RX Packet Counters
+  // ------------------------------------------------------------------------------------------------------------------ 
+  always_ff@(negedge clk) begin
+    if(~reset_n) begin
+      for(int i=0; i<`NODES; i++) begin
+        f_port_s_i_data_count[i] <= 0;
+        f_port_i_data_count[i] <= 0;
+        f_port_o_data_count[i] <= 0;
+      end          
+    end else begin
+      for(int i=0; i<`NODES; i++) begin
+        f_port_s_i_data_count[i] <= f_port_s_i_data_count[i] + 1 ;
+        f_port_i_data_count[i] <= i_data_val[i] && o_en[i] ? f_port_i_data_count[i] + 1 : f_port_i_data_count[i];
+        f_port_o_data_count[i] <= o_data_val[i] ? f_port_o_data_count[i] + 1 : f_port_o_data_count[i];
+     end
+    end
+  end
+  
   always_comb begin
-    for(int i=0; i<`NODES; i++) begin
-      s_i_data_val[i] = 1'b1;
+    f_total_s_i_data_count = 0;   
+    f_total_i_data_count = 0;
+    f_total_o_data_count = 0;
+    for (int i=0; i<`NODES; i++) begin
+      f_total_s_i_data_count = f_port_s_i_data_count[i] + f_total_s_i_data_count;
+      f_total_i_data_count = f_port_i_data_count[i]   + f_total_i_data_count;
+      f_total_o_data_count = f_port_o_data_count[i] + f_total_o_data_count;    
     end
   end
 
-  // output waveforms
   initial begin
-    $dumpfile("test.vcd");
-    $dumpvars(0, network);
+	 #100000 $finish;
+  end
+
+  initial begin
+    $display("");
+
+    forever@(posedge clk) begin
+        if(f_time % 100 == 0) begin
+            $display("f_time %g:  Transmitted %g packets, Received %g packets", f_time, f_total_i_data_count, f_total_o_data_count);
+        end
+    end
   end
 
 endmodule
