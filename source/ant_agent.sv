@@ -13,15 +13,6 @@ module ant_agent
   output logic [0:`N-1][`M-1:0] o_output_req //output request
 );
 
-  ant_routing_table
-       routing_table(
-          .i_update(l_update),// whether update or not
-          .i_calculate_neighbor(l_calculate_neighbor), //whether calculate neighbor or not
-          .i_dest(l_dest), // = l_data[i].y_dest*8+l_data[i].x_dest
-          .i_parent(l_parent), // = i;
-          .o_next_output(l_next_output) // l_next_output
-       );
-
   logic l_update;
   logic l_calculate_neighbor;
   
@@ -32,6 +23,15 @@ module ant_agent
   
   logic [$clog2(`X_NODES)-1:0] l_x_temp;
   logic [$clog2(`Y_NODES)-1:0] l_y_temp;
+
+  ant_routing_table
+       routing_table(
+          .i_update(l_update),// whether update or not
+          .i_calculate_neighbor(l_calculate_neighbor), //whether calculate neighbor or not
+          .i_dest(l_dest), // = l_data[i].y_dest*8+l_data[i].x_dest
+          .i_parent(l_parent), // = i;
+          .o_next_output(l_next_output) // l_next_output
+       );
   
   always_comb begin
     o_output_req = '0;

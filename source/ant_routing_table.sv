@@ -8,7 +8,7 @@ module ant_routing_table(
   output logic [0:`N-1] o_next_output
 );
 
-  logic [0:`NODES-1][0:`N-2] pheromones;
+  logic [0:`N-2] pheromones [0:`NODES-1];
   int max_pheromone_value;
   logic [0:`N-1] max_pheromone_neighbor;
 
