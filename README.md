@@ -26,3 +26,5 @@ libxt6:i386 libxtst6:i386
 
 ###Hints
 /home/itecgo/altera_lite/15.1/modelsim_ase/linux/vsim
+
+bandwidth(throughput) = num_packets_transmitted / time
