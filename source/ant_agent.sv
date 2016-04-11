@@ -79,9 +79,9 @@ module ant_agent
             // LOC != dest: memorize & send forward
             if(X_LOC != o_data[i].x_dest || Y_LOC != o_data[i].y_dest) begin
               // memorize
-	           o_data[i].x_memory[o_data[i].num_memory] = X_LOC;
-              o_data[i].y_memory[o_data[i].num_memory] = Y_LOC;
-              o_data[i].num_memory++;
+	           o_data[i].x_memory[o_data[i].num_memories] = X_LOC;
+              o_data[i].y_memory[o_data[i].num_memories] = Y_LOC;
+              o_data[i].num_memories++;
 
               // send forward ant packet				  
 				  // 1.calculate_neighbor
@@ -107,10 +107,10 @@ module ant_agent
               o_data[i].y_dest = l_y_temp;
 	
 	           // send backward ant packet (give next_output to route calculator):
-              if(o_data[i].x_memory[o_data[i].num_memory] != X_LOC) 
-                o_output_req[i] = o_data[i].x_memory[o_data[i].num_memory] > X_LOC ? 5'b00100 : 5'b00001;
+              if(o_data[i].x_memory[o_data[i].num_memories] != X_LOC)
+                o_output_req[i] = o_data[i].x_memory[o_data[i].num_memories] > X_LOC ? 5'b00100 : 5'b00001;
               else 
-                o_output_req[i] = o_data[i].y_memory[o_data[i].num_memory] > Y_LOC ? 5'b01000 : 5'b00010;
+                o_output_req[i] = o_data[i].y_memory[o_data[i].num_memories] > Y_LOC ? 5'b01000 : 5'b00010;
             end
 
 	       // handle backward ant packet	  
@@ -131,7 +131,7 @@ module ant_agent
                   o_output_req[i] = (o_data[i].y_dest > Y_LOC) ? 5'b01000 : 5'b00010;
               end else begin
                 //o_output_req is in memory
-                for(int m = 1;m < o_data[i].num_memory; m++) begin
+                for(int m = 1;m < o_data[i].num_memories; m++) begin
                   if(o_data[i].x_memory[m] == X_LOC && o_data[i].y_memory[m] == Y_LOC) begin
                     if(o_data[i].x_memory[m-1] != X_LOC) 
                       o_output_req[i] = o_data[i].x_memory[m-1] > X_LOC ? 5'b00100 : 5'b00001;//2 : 4;

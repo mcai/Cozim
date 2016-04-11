@@ -22,5 +22,5 @@ typedef struct packed {
 	 logic backward;
     logic [0:`NODES-1][$clog2(`X_NODES+1)-1:0] x_memory;
     logic [0:`NODES-1][$clog2(`Y_NODES+1)-1:0] y_memory;
-	 logic [$clog2(`NODES)-1:0] num_memory;
+	 logic [$clog2(`NODES)-1:0] num_memories;
 } packet_t;
