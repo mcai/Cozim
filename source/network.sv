@@ -14,7 +14,30 @@ module network
   // Network Write to Nodes.  Valid/Enable protocol.
   // ------------------------------------------------------------------------------------------------------------------
   output packet_t [0:`NODES-1] o_data, // Output data from the network to the nodes
-  output logic [0:`NODES-1] o_data_val // Validates the output data to the nodes
+  output logic [0:`NODES-1] o_data_val, // Validates the output data to the nodes
+  
+  output logic [0:`NODES-1][0:`N-1] test_en_SCtoFF,
+  
+  output packet_t [0:`NODES-1][0:`N-1] test_data_FFtoAA,
+  output logic [0:`NODES-1][0:`N-1] test_data_val_FFtoAA,
+  
+  output packet_t [0:`NODES-1][0:`N-1] test_data_AAtoSW,
+  
+  output logic [0:`NODES-1][0:`N-1] test_data_val_AAtoRC,
+  output logic [0:`NODES-1][0:`N-1][0:`M-1] test_output_req_AAtoRC,
+  
+  output logic [0:`NODES-1][0:`N-1][0:`M-1] test_output_req_RCtoSC,
+  
+  output logic [0:`NODES-1][0:`N-1][0:`M-1] test_l_req_matrix_SC,
+  
+  output logic [0:`NODES-1][0:`N-1] test_update,
+  output logic [0:`NODES-1][0:`N-1] test_calculate_neighbor,
+  //logic [$clog2(`N):0] test_parent; //=i
+  output logic [0:`NODES-1][0:`N-1][0:`M-1] test_r_o_output_req,
+  
+  output logic [0:`NODES-1][0:`NODES-1][0:`N-2][`PH_TABLE_DEPTH-1:0] test_pheromones,
+  output logic [0:`NODES-1][0:`PH_TABLE_DEPTH-1] test_max_pheromone_value,
+  output logic [0:`NODES-1][0:`PH_TABLE_DEPTH-1] test_min_pheromone_value
 );
 
   // Local Logic network, define the network connections to which nodes and routers will write, and from which routers
@@ -36,6 +59,30 @@ module network
   logic [0:`NODES-1][0:`M-1] l_dataout_val;
   logic [0:`NODES-1][0:`M-1] l_i_en;
   
+  /*
+  logic [0:`NODES-1][0:`N-1] test_en_SCtoFF;
+  
+  packet_t [0:`NODES-1][0:`N-1] test_data_FFtoAA;
+  logic [0:`NODES-1][0:`N-1] test_data_val_FFtoAA;
+  
+  packet_t [0:`NODES-1][0:`N-1] test_data_AAtoSW;
+  
+  logic [0:`NODES-1][0:`N-1] test_data_val_AAtoRC;
+  logic [0:`NODES-1][0:`N-1][0:`M-1] test_output_req_AAtoRC;
+  
+  logic [0:`NODES-1][0:`N-1][0:`M-1] test_output_req_RCtoSC;
+  
+  logic [0:`NODES-1][0:`N-1][0:`M-1] test_l_req_matrix_SC;
+  
+  logic [0:`NODES-1][0:`N-1] test_update;
+  logic [0:`NODES-1][0:`N-1] test_calculate_neighbor;
+  //logic [$clog2(`N):0] test_parent; //=i
+  logic [0:`NODES-1][0:`N-1][0:`M-1] test_r_o_output_req;
+  
+  logic [0:`NODES-1][0:`NODES-1][0:`N-2][`PH_TABLE_DEPTH-1:0] test_pheromones;
+  logic [0:`NODES-1][0:`PH_TABLE_DEPTH-1] test_max_pheromone_value;
+  logic [0:`NODES-1][0:`PH_TABLE_DEPTH-1] test_min_pheromone_value;
+  */
   // Define the shape of the local logic network.
   // ------------------------------------------------------------------------------------------------------------------         
 
@@ -51,7 +98,7 @@ module network
   // 04 05 06 07
   // 00 01 02 03
   always_comb begin
-    for(int i=0; i<`X_NODES*`Y_NODES; i++) begin
+    for(int i=0; i<`NODES; i++) begin
       // Router input 'data' 
       //   -- Taken from upstream router output data and upstream node output data
       l_datain[i][0] = i_data[i]; // Local input
@@ -97,7 +144,31 @@ module network
                              .o_en(l_o_en[y*`X_NODES+x]), // To the upstream routers
                              .o_data(l_dataout[y*`X_NODES+x]), // To the downstream routers
                              .o_data_val(l_dataout_val[y*`X_NODES+x]), // To the downstream routers
-                             .i_en(l_i_en[y*`X_NODES+x])); // From the downstream routers
+                             .i_en(l_i_en[y*`X_NODES+x]) ,// From the downstream routers
+    .test_en_SCtoFF(test_en_SCtoFF[y*`X_NODES+x]),
+  
+    .test_data_FFtoAA(test_data_FFtoAA[y*`X_NODES+x]),
+    .test_data_val_FFtoAA(test_data_val_FFtoAA[y*`X_NODES+x]), 
+  
+    .test_data_AAtoSW(test_data_AAtoSW[y*`X_NODES+x]),
+  
+    .test_data_val_AAtoRC(test_data_val_AAtoRC[y*`X_NODES+x]),
+    .test_output_req_AAtoRC(test_output_req_AAtoRC[y*`X_NODES+x]),
+  
+    .test_output_req_RCtoSC(test_output_req_RCtoSC[y*`X_NODES+x]),
+  
+    .test_l_req_matrix_SC(test_l_req_matrix_SC[y*`X_NODES+x]),//SC
+	  
+				  
+  .test_update(test_update[y*`X_NODES+x]),
+  .test_calculate_neighbor(test_calculate_neighbor[y*`X_NODES+x]),
+  //.test_parent(test_parent), //=i
+  .test_r_o_output_req(test_r_o_output_req[y*`X_NODES+x]),
+  
+  .test_pheromones(test_pheromones[y*`X_NODES+x]),
+  .test_max_pheromone_value(test_max_pheromone_value[y*`X_NODES+x]),
+  .test_min_pheromone_value(test_min_pheromone_value[y*`X_NODES+x])
+									  );
       end
     end
   endgenerate

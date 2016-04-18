@@ -6,7 +6,7 @@
 // according to read and write requests.
 module fifo_packet
 #(
-  parameter DEPTH = 4
+  parameter DEPTH = `INPUT_QUEUE_DEPTH//4
 )
  (
   input logic clk,
@@ -21,7 +21,7 @@ module fifo_packet
   output logic o_data_val, // Validates the data on o_data, held high until input enable received
   output logic o_en // Outputs an enable, if high, i_data is written to memory
 );
-
+  
   typedef struct{logic rd_ptr, wr_ptr;} ptr;
   
   ptr l_mem_ptr [DEPTH-1:0];

@@ -10,7 +10,8 @@ module switch_control
   input logic [0:`N-1][0:`M-1] i_output_req, // N local input units requests up to M output ports
   
   output logic [0:`M-1][0:`N-1] o_output_grant, // Each of the M outputs are granted to the N inputs  
-  output logic [0:`N-1] o_input_grant // Each of the N inputs has a single input queue that can be granted
+  output logic [0:`N-1] o_input_grant, // Each of the N inputs has a single input queue that can be granted
+  output logic [0:`M-1][0:`N-1] test_l_req_matrix_SC
 );
 
   logic [0:`N-1][0:`M-1] l_req_matrix; // N Packed requests for M available output ports
@@ -34,7 +35,7 @@ module switch_control
     genvar i;
     for (i=0; i<`M; i++) begin : output_ports
         ppe_roundrobin #(.N(`N)) 
-		    gen_ppe_roundrobin (.clk, .ce, .reset_n,
+		    gen_ppe_roundrobin (.clk(clk), .ce(ce), .reset_n(reset_n),
 										.i_request(l_req_matrix[i]),
 										.o_grant(o_output_grant[i]));
     end
@@ -50,5 +51,7 @@ module switch_control
       o_input_grant |= o_output_grant[i];
     end
   end 
-
+  
+  assign test_l_req_matrix_SC=l_req_matrix;
+  
 endmodule

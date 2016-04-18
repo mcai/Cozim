@@ -202,7 +202,7 @@ module testbench
           s_i_data[i].y_memory <= 0;
           s_i_data[i].num_memories <= 0;
 			 
-          if (f_time % `ANT_PERIOD == 0)
+          if (f_time % `CREATE_ANT_PERIOD == 0)
 				s_i_data[i].ant <= 1;
           else
 				s_i_data[i].ant <= 0;
